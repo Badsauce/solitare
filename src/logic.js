@@ -1,37 +1,92 @@
-var deck_id
-var tableau = [[],[],[],[],[],[],[]]
+var stock;
+var tableau = [[],[],[],[],[],[],[]];
 
-axios.get('http://deckofcardsapi.com/api/deck/new/')
-  .then(function (response) {
-    deck_id = response.data.deck_id;
-
-    ReactDOM.render(
-      <h1>Deck id is {deck_id}</h1>,
-      document.getElementById('example')
-    );
-
-    console.log(deck_id);
-    for(var i = 0;i < 7; i++){
-      deal(i+1,tableau[i]);
-    }
-    setTimeout(function () {
-      console.log(tableau);
-    }, 1000);
-  })
-  .catch(function (response) {
-    console.log('Error when submitting new deck request.');
-    ReactDOM.render(
-      <h1>Error contacting cards API</h1>,
-      document.getElementById('example')
-    );
-  });
-
-function deal(count,pile){
-  axios.get('http://deckofcardsapi.com/api/deck/'+deck_id+'/draw/?count='+count)
+//Get a shuffled deck from deckofcardsapi and call renderSolitare
+function initalize(){
+  axios.get('http://deckofcardsapi.com/api/deck/new/draw/?count=52')
    .then(function(response){
-     pile[0] = response;
+     stock = response.data.cards;
+     console.log(stock);
+     dealStartingCards();
+     renderSolitare();
    })
-   .catch(function(response){
-     console.log('Error when submitting drawing a new card.');
-   })
+  //  .catch(function(response){
+  //    console.log('Error when drawing the stock from card API.');
+  //    ReactDOM.render(
+  //      <h1>Error contacting cards API</h1>,
+  //      document.getElementById('example')
+  //    );
+  //  });
 }
+
+function dealStartingCards(){
+  for(var startingTableau = 0; startingTableau < 7; startingTableau++){
+    for(var dealIndex = startingTableau; dealIndex <7; dealIndex++ ){
+      tableau[dealIndex].push(stock.pop());
+    }
+  }
+}
+
+var Card = React.createClass({
+  render: function() {
+    return (
+      <img src={this.props.card.image}/>
+    );
+  }
+});
+
+var Stock = React.createClass({
+  render: function() {
+    var cards = [];
+    for(var ii = 0;ii < stock.length;ii++){
+      cards.push(
+        <Card card={stock[ii]} key={ii}/>
+      );
+    }
+
+    return (
+      <div>{stock.length}</div>
+    );
+  }
+});
+
+var Tableau = React.createClass({
+  render: function() {
+    var tableauPiles = [];
+    for(var ii = 0;ii < tableau.length;ii++){
+      tableauPiles.push(
+        <TableauPile contents={tableau[ii]} key={ii}/>
+      );
+    }
+
+    return (
+      <div className="tableau">{tableauPiles}</div>
+    );
+  }
+});
+
+var TableauPile = React.createClass({
+  render: function() {
+    var cards = [];
+    for(var ii =0; ii < this.props.contents.length; ii++){
+      cards.push(
+        <Card card={this.props.contents[ii]} key={ii}/>
+      );
+    }
+    return (
+      <div>{cards}</div>
+    );
+  }
+});
+
+function renderSolitare(){
+  ReactDOM.render(
+    <div>
+      <Tableau/>
+      <Stock/>
+    </div>,
+    document.getElementById('example')
+  );
+}
+
+initalize()
