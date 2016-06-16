@@ -29,8 +29,14 @@ function dealStartingCards(){
 
 var Card = React.createClass({
   render: function() {
+    var style = {
+      position: 'absolute',
+      width: '100%',
+      top: 3*this.props.offsetMultiplier +'em'
+    };
+
     return (
-      <img src={this.props.card.image}/>
+      <img style={style} className="card" src={this.props.card.image}/>
     );
   }
 });
@@ -52,6 +58,10 @@ var Stock = React.createClass({
 
 var Tableau = React.createClass({
   render: function() {
+    var style = {
+      display: 'flex'
+    };
+
     var tableauPiles = [];
     for(var ii = 0;ii < tableau.length;ii++){
       tableauPiles.push(
@@ -60,21 +70,27 @@ var Tableau = React.createClass({
     }
 
     return (
-      <div className="tableau">{tableauPiles}</div>
+      <div style={style} className="tableau">{tableauPiles}</div>
     );
   }
 });
 
 var TableauPile = React.createClass({
   render: function() {
+    var style = {
+      position: 'relative',
+      width: '8em',
+      margin: '0 .5em'
+    };
+
     var cards = [];
     for(var ii =0; ii < this.props.contents.length; ii++){
       cards.push(
-        <Card card={this.props.contents[ii]} key={ii}/>
+        <Card card={this.props.contents[ii]} offsetMultiplier={ii} key={ii}/>
       );
     }
     return (
-      <div>{cards}</div>
+      <div style={style} className="tableau-pile">{cards}</div>
     );
   }
 });
@@ -82,8 +98,8 @@ var TableauPile = React.createClass({
 function renderSolitare(){
   ReactDOM.render(
     <div>
-      <Tableau/>
       <Stock/>
+      <Tableau/>
     </div>,
     document.getElementById('example')
   );
