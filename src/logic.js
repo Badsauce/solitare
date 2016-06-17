@@ -27,31 +27,55 @@ function dealStartingCards(){
   }
 }
 
-var Card = React.createClass({
+var Board = React.createClass({
   render: function() {
     var style = {
       position: 'absolute',
+      background: 'url(/src/images/wov.png)',
+      width: '100%',
+      height: '100vh',
+      top: 0,
+      left: 0
+    };
+
+    return (
+      <div style={style}>
+      </div>
+    );
+  }
+});
+
+var Card = React.createClass({
+  render: function() {
+    var style = {
+      position: this.props.position,
       width: '100%',
       top: 3*this.props.offsetMultiplier +'em'
     };
 
+    var image = 'src/images/cardBack.png';
+    if(this.props.flipped){
+      image = this.props.card.image;
+    }
+
     return (
-      <img style={style} className="card" src={this.props.card.image}/>
+      <img style={style} className="card" src={image}/>
     );
   }
 });
 
 var Stock = React.createClass({
   render: function() {
-    var cards = [];
-    for(var ii = 0;ii < stock.length;ii++){
-      cards.push(
-        <Card card={stock[ii]} key={ii}/>
-      );
-    }
+    var style = {
+      position: 'relative',
+      width: '8em',
+      margin: '0 .5em'
+    };
 
     return (
-      <div>{stock.length}</div>
+      <div style={style}>
+        <Card card={stock[0]} flipped={false} position={'relative'} offsetMultiplier={0}/>
+      </div>
     );
   }
 });
@@ -86,7 +110,7 @@ var TableauPile = React.createClass({
     var cards = [];
     for(var ii =0; ii < this.props.contents.length; ii++){
       cards.push(
-        <Card card={this.props.contents[ii]} offsetMultiplier={ii} key={ii}/>
+        <Card card={this.props.contents[ii]} flipped={ii == this.props.contents.length-1} position={'absolute'} offsetMultiplier={ii} key={ii}/>
       );
     }
     return (
@@ -98,6 +122,7 @@ var TableauPile = React.createClass({
 function renderSolitare(){
   ReactDOM.render(
     <div>
+      <Board/>
       <Stock/>
       <Tableau/>
     </div>,
