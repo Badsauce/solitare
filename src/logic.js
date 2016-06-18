@@ -30,16 +30,17 @@ function dealStartingCards(){
 var Board = React.createClass({
   render: function() {
     var style = {
-      position: 'absolute',
       background: 'url(/src/images/wov.png)',
       width: '100%',
       height: '100vh',
-      top: 0,
-      left: 0
+      padding: '.5em',
+      paddingTop: '1em'
     };
 
     return (
       <div style={style}>
+        <Stock/>
+        <Tableau/>
       </div>
     );
   }
@@ -121,11 +122,7 @@ var TableauPile = React.createClass({
 
 function renderSolitare(){
   ReactDOM.render(
-    <div>
-      <Board/>
-      <Stock/>
-      <Tableau/>
-    </div>,
+    <Board/>,
     document.getElementById('example')
   );
 }
