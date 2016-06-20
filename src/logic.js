@@ -23,14 +23,35 @@ function dealStartingCards(stock,tableau){
 
 var Board = React.createClass({
   getInitialState: function() {
-    var deck = this.props.deck;
+    var deck = this.props.initialDeck;
     var tableauContents = [[],[],[],[],[],[],[]];
     dealStartingCards(deck,tableauContents);
 
     return {
       stock: deck,
-      tableau: tableauContents
+      tableau: tableauContents,
+      waste: []
     };
+  },
+
+  onStockClick: function(evt) {
+    var newStock = this.state.stock.slice();
+    var newWaste = this.state.waste.slice();
+
+    if(newStock.length > 0){
+      newWaste.push(newStock.pop());
+    }
+    else {
+      while(newWaste.length > 0){
+        newStock.push(newWaste.pop());
+      }
+    }
+
+
+    this.setState({
+      waste: newWaste,
+      stock: newStock
+    })
   },
 
   render: function() {
@@ -42,9 +63,17 @@ var Board = React.createClass({
       paddingTop: '1em'
     };
 
+    var topBarStyle = {
+      width: '100%',
+      display: 'flex'
+    }
+
     return (
       <div style={style}>
-        <Stock stock={this.state.stock}/>
+        <div style={topBarStyle}>
+          <Stock stock={this.state.stock} onStockClick={this.onStockClick}/>
+          <Waste waste={this.state.waste}/>
+        </div>
         <Tableau tableau={this.state.tableau}/>
       </div>
     );
@@ -59,9 +88,37 @@ var Stock = React.createClass({
       margin: '0 .5em'
     };
 
+    var topCard = "";
+
+    if(this.props.stock.length > 0){
+      topCard = <Card card={this.props.stock[this.props.stock.length-1]} flipped={false} position={'relative'} offsetMultiplier={0}/>
+    }
+
+    return (
+      <div onClick={this.props.onStockClick} style={style}>
+        {topCard}
+      </div>
+    );
+  }
+});
+
+var Waste = React.createClass({
+  render: function() {
+    var style = {
+      position: 'relative',
+      width: '8em',
+      margin: '0 .5em'
+    };
+
+    var topCard = "";
+
+    if(this.props.waste.length > 0){
+      topCard = <Card card={this.props.waste[this.props.waste.length-1]} flipped={true} position={'relative'} offsetMultiplier={0}/>
+    }
+
     return (
       <div style={style}>
-        <Card card={this.props.stock[0]} flipped={false} position={'relative'} offsetMultiplier={0}/>
+        {topCard}
       </div>
     );
   }
@@ -127,7 +184,7 @@ var TableauPile = React.createClass({
 
 function renderSolitare(deck){
   ReactDOM.render(
-    <Board deck={deck}/>,
+    <Board initialDeck={deck}/>,
     document.getElementById('example')
   );
 }
