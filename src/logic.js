@@ -1,14 +1,8 @@
-var stock;
-var tableau = [[],[],[],[],[],[],[]];
-
 //Get a shuffled deck from deckofcardsapi and call renderSolitare
 function initalize(){
   axios.get('http://deckofcardsapi.com/api/deck/new/draw/?count=52')
    .then(function(response){
-     stock = response.data.cards;
-     console.log(stock);
-     dealStartingCards();
-     renderSolitare();
+     renderSolitare(response.data.cards);
    })
   //  .catch(function(response){
   //    console.log('Error when drawing the stock from card API.');
@@ -19,7 +13,7 @@ function initalize(){
   //  });
 }
 
-function dealStartingCards(){
+function dealStartingCards(stock,tableau){
   for(var startingTableau = 0; startingTableau < 7; startingTableau++){
     for(var dealIndex = startingTableau; dealIndex <7; dealIndex++ ){
       tableau[dealIndex].push(stock.pop());
@@ -28,6 +22,17 @@ function dealStartingCards(){
 }
 
 var Board = React.createClass({
+  getInitialState: function() {
+    var deck = this.props.deck;
+    var tableauContents = [[],[],[],[],[],[],[]];
+    dealStartingCards(deck,tableauContents);
+
+    return {
+      stock: deck,
+      tableau: tableauContents
+    };
+  },
+
   render: function() {
     var style = {
       background: 'url(/src/images/wov.png)',
@@ -39,8 +44,24 @@ var Board = React.createClass({
 
     return (
       <div style={style}>
-        <Stock/>
-        <Tableau/>
+        <Stock stock={this.state.stock}/>
+        <Tableau tableau={this.state.tableau}/>
+      </div>
+    );
+  }
+});
+
+var Stock = React.createClass({
+  render: function() {
+    var style = {
+      position: 'relative',
+      width: '8em',
+      margin: '0 .5em'
+    };
+
+    return (
+      <div style={style}>
+        <Card card={this.props.stock[0]} flipped={false} position={'relative'} offsetMultiplier={0}/>
       </div>
     );
   }
@@ -65,22 +86,6 @@ var Card = React.createClass({
   }
 });
 
-var Stock = React.createClass({
-  render: function() {
-    var style = {
-      position: 'relative',
-      width: '8em',
-      margin: '0 .5em'
-    };
-
-    return (
-      <div style={style}>
-        <Card card={stock[0]} flipped={false} position={'relative'} offsetMultiplier={0}/>
-      </div>
-    );
-  }
-});
-
 var Tableau = React.createClass({
   render: function() {
     var style = {
@@ -88,9 +93,9 @@ var Tableau = React.createClass({
     };
 
     var tableauPiles = [];
-    for(var ii = 0;ii < tableau.length;ii++){
+    for(var ii = 0;ii < this.props.tableau.length;ii++){
       tableauPiles.push(
-        <TableauPile contents={tableau[ii]} key={ii}/>
+        <TableauPile contents={this.props.tableau[ii]} key={ii}/>
       );
     }
 
@@ -120,9 +125,9 @@ var TableauPile = React.createClass({
   }
 });
 
-function renderSolitare(){
+function renderSolitare(deck){
   ReactDOM.render(
-    <Board/>,
+    <Board deck={deck}/>,
     document.getElementById('example')
   );
 }
