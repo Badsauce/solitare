@@ -30,7 +30,8 @@ var Board = React.createClass({
     return {
       stock: deck,
       tableau: tableauContents,
-      waste: []
+      waste: [],
+      hand: []
     };
   },
 
@@ -54,6 +55,19 @@ var Board = React.createClass({
     })
   },
 
+  moveToHand: function(evt) {
+    //var cardCode = evt.target.dataset.cardCode;
+    var newHand = this.state.hand.slice();
+    var newWaste = this.state.waste.slice();
+
+    newHand.push(newWaste.pop());
+
+    this.setState({
+      waste: newWaste,
+      hand: newHand
+    })
+  },
+
   render: function() {
     var style = {
       background: 'url(/src/images/wov.png)',
@@ -68,13 +82,15 @@ var Board = React.createClass({
       display: 'flex'
     }
 
+    console.log(this.state.hand)
+
     return (
       <div style={style}>
         <div style={topBarStyle}>
           <Stock stock={this.state.stock} onStockClick={this.onStockClick}/>
-          <Waste waste={this.state.waste}/>
+          <Waste waste={this.state.waste} moveToHand={this.moveToHand}/>
         </div>
-        <Tableau tableau={this.state.tableau}/>
+        <Tableau tableau={this.state.tableau} moveToHand={this.moveToHand}/>
       </div>
     );
   }
@@ -113,32 +129,21 @@ var Waste = React.createClass({
     var topCard = "";
 
     if(this.props.waste.length > 0){
-      topCard = <Card card={this.props.waste[this.props.waste.length-1]} flipped={true} position={'relative'} offsetMultiplier={0}/>
+      (
+        topCard = <Card
+          card={this.props.waste[this.props.waste.length-1]}
+          onClick={this.props.moveToHand}
+          flipped={true}
+          position={'relative'}
+          offsetMultiplier={0}
+        />
+      )
     }
 
     return (
       <div style={style}>
         {topCard}
       </div>
-    );
-  }
-});
-
-var Card = React.createClass({
-  render: function() {
-    var style = {
-      position: this.props.position,
-      width: '100%',
-      top: 3*this.props.offsetMultiplier +'em'
-    };
-
-    var image = 'src/images/cardBack.png';
-    if(this.props.flipped){
-      image = this.props.card.image;
-    }
-
-    return (
-      <img style={style} className="card" src={image}/>
     );
   }
 });
@@ -178,6 +183,25 @@ var TableauPile = React.createClass({
     }
     return (
       <div style={style} className="tableau-pile">{cards}</div>
+    );
+  }
+});
+
+var Card = React.createClass({
+  render: function() {
+    var style = {
+      position: this.props.position,
+      width: '100%',
+      top: 3*this.props.offsetMultiplier +'em'
+    };
+
+    var image = 'src/images/cardBack.png';
+    if(this.props.flipped){
+      image = this.props.card.image;
+    }
+
+    return (
+      <img style={style} data-card-code={this.props.card.code} onClick={this.props.onClick} className="card" src={image}/>
     );
   }
 });
