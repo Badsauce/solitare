@@ -31,7 +31,8 @@ var Board = React.createClass({
       stock: deck,
       tableau: tableauContents,
       waste: [],
-      hand: []
+      hand: [],
+      foundation: [[],[],[],[]]
     };
   },
 
@@ -71,7 +72,7 @@ var Board = React.createClass({
   render: function() {
     var style = {
       background: 'url(/src/images/wov.png)',
-      width: '100%',
+      maxWidth: '100%',
       height: '100vh',
       padding: '.5em',
       paddingTop: '1em'
@@ -89,6 +90,7 @@ var Board = React.createClass({
         <div style={topBarStyle}>
           <Stock stock={this.state.stock} onStockClick={this.onStockClick}/>
           <Waste waste={this.state.waste} moveToHand={this.moveToHand}/>
+          <Foundation foundation={this.state.foundation}/>
         </div>
         <Tableau tableau={this.state.tableau} moveToHand={this.moveToHand}/>
       </div>
@@ -126,13 +128,61 @@ var Waste = React.createClass({
       margin: '0 .5em'
     };
 
-    var topCard = "";
+    var topCard = <img style={{width:'100%'}} src="src/images/emptyCard.png"/>;
 
     if(this.props.waste.length > 0){
       (
         topCard = <Card
           card={this.props.waste[this.props.waste.length-1]}
           onClick={this.props.moveToHand}
+          flipped={true}
+          position={'relative'}
+          offsetMultiplier={0}
+        />
+      )
+    }
+
+    return (
+      <div style={style}>
+        {topCard}
+      </div>
+    );
+  }
+});
+
+var Foundation = React.createClass({
+  render: function() {
+    var style = {
+      display: 'flex'
+    };
+
+    var foundationStacks = [];
+    for(var ii = 0;ii < this.props.foundation.length;ii++){
+      foundationStacks.push(
+        <FoundationStack contents={this.props.foundation[ii]} key={ii}/>
+      );
+    }
+
+    return (
+      <div style={style}>{foundationStacks}</div>
+    );
+  }
+});
+
+var FoundationStack = React.createClass({
+  render: function() {
+    var style = {
+      position: 'relative',
+      width: '8em',
+      margin: '0 .5em'
+    };
+
+    var topCard = <img style={{width:'100%'}} src="src/images/emptyCard.png"/>;
+
+    if(this.props.contents.length > 0){
+      (
+        topCard = <Card
+          card={this.props.contents[this.props.contents.length-1]}
           flipped={true}
           position={'relative'}
           offsetMultiplier={0}
