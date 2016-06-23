@@ -32,7 +32,9 @@ var Board = React.createClass({
       tableau: tableauContents,
       waste: [],
       hand: [],
-      foundation: [[],[],[],[]]
+      foundation: [[],[],[],[]],
+      mouseX: 0,
+      mouseY: 0
     };
   },
 
@@ -57,7 +59,6 @@ var Board = React.createClass({
   },
 
   moveToHand: function(evt) {
-    //var cardCode = evt.target.dataset.cardCode;
     var newHand = this.state.hand.slice();
     var newWaste = this.state.waste.slice();
 
@@ -66,6 +67,13 @@ var Board = React.createClass({
     this.setState({
       waste: newWaste,
       hand: newHand
+    })
+  },
+
+  trackMouse: function(evt) {
+    this.setState({
+      mouseX: evt.pageX,
+      mouseY: evt.pageY
     })
   },
 
@@ -83,16 +91,15 @@ var Board = React.createClass({
       display: 'flex'
     }
 
-    console.log(this.state.hand)
-
     return (
-      <div style={style}>
+      <div onMouseMove={this.trackMouse} style={style}>
         <div style={topBarStyle}>
           <Stock stock={this.state.stock} onStockClick={this.onStockClick}/>
           <Waste waste={this.state.waste} moveToHand={this.moveToHand}/>
           <Foundation foundation={this.state.foundation}/>
         </div>
         <Tableau tableau={this.state.tableau} moveToHand={this.moveToHand}/>
+        <Hand x={this.state.mouseX} y={this.state.mouseY}/>
       </div>
     );
   }
@@ -213,6 +220,24 @@ var Tableau = React.createClass({
 
     return (
       <div style={style} className="tableau">{tableauPiles}</div>
+    );
+  }
+});
+
+var Hand = React.createClass({
+  render: function() {
+    var style = {
+      position: 'absolute',
+      width: '8em',
+      margin: '0px',
+      top: 'calc('+this.props.y+'px - 5em',
+      left: 'calc('+this.props.x+'px - 4em'
+    };
+
+    return (
+      <div className="hand" style={style}>
+        <img style={{width: '100%'}} src='src/images/cardBack.png'/>
+      </div>
     );
   }
 });
